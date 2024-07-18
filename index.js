@@ -12,13 +12,13 @@ const Message = require('./model/message');
 const route = require('./route/router');
 
 app.use(cors({
-    origin: '*', // Replace with your frontend URL
+    origin: 'https://chat-application-backend-nu.vercel.app/', // Replace with your frontend URL
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
 }));
 
-app.options('*', cors()); // Preflight request handling
+app.options('https://chat-application-backend-nu.vercel.app/', cors()); // Preflight request handling
 
 const server = http.createServer(app);
 const io = new Server(server, {
