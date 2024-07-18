@@ -12,7 +12,7 @@ const Message = require('./model/message');
 const route = require('./route/router');
 
 app.use(cors({
-    origin: 'http://localhost:3000', // Replace with your frontend URL
+    origin: '*', // Replace with your frontend URL
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -23,8 +23,8 @@ app.options('*', cors()); // Preflight request handling
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: 'http://localhost:3000', // Replace with your frontend URL
-        methods: ['GET', 'POST'],
+        origin: "*",
+        methods: ["GET", "POST"]
     },
 });
 
