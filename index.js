@@ -39,6 +39,11 @@ global.onlineUsers = new Map();
 io.on('connection', (socket) => {
     console.log(`New connection: ${socket.id}`);
 
+    socket.on('error', (err) => {
+        console.error('Socket encountered error: ', err.message, 'Closing socket');
+        socket.close();
+    });
+
     socket.on('add-user', (userId) => {
         onlineUsers.set(userId, socket.id);
         console.log(`User added: ${userId} with socket ID: ${socket.id}`);
@@ -86,6 +91,8 @@ mongoose.connect(process.env.Mongo_DB_URL, {
     console.log(err.message);
 });
 
-server.listen(4000, () => {
-    console.log('Server is running on port 4000');
+const PORT = process.env.PORT || 4000;
+server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
+
