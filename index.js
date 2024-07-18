@@ -11,14 +11,15 @@ dotenv.config();
 const Message = require('./model/message');
 const route = require('./route/router');
 
-app.use(cors({
-    origin: ['http://localhost:3000', 'https://chat-application-azure-three.vercel.app'], // Replace with your frontend URLs
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+const corsOptions = {
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
-}));
+    optionsSuccessStatus: 204,
+};
 
-app.options('*', cors());
+app.use(cors(corsOptions));  
+
 
 const server = http.createServer(app);
 const io = new Server(server, {
