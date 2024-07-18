@@ -4,37 +4,46 @@ const http = require('http');
 const cors = require('cors');
 const { Server } = require('socket.io');
 const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const Message = require('./model/message');
 const route = require('./route/router');
-app.use(cors());
+
+app.use(cors({
+    origin: 'http://localhost:3000', // Replace with your frontend URL
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+}));
+
+app.options('*', cors()); // Preflight request handling
 
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
+        origin: 'http://localhost:3000', // Replace with your frontend URL
+        methods: ['GET', 'POST'],
     },
 });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/', route);
-require('dotenv').config();
-
 
 global.onlineUsers = new Map();
 
-io.on("connection", (socket) => {
+io.on('connection', (socket) => {
     console.log(`New connection: ${socket.id}`);
 
-    socket.on("add-user", (userId) => {
+    socket.on('add-user', (userId) => {
         onlineUsers.set(userId, socket.id);
         console.log(`User added: ${userId} with socket ID: ${socket.id}`);
         console.log('Current online users:', Array.from(onlineUsers.entries()));
     });
 
-    socket.on("send-msg", async (data) => {
+    socket.on('send-msg', async (data) => {
         console.log(`Message from ${data.from} to ${data.to}: ${data.msg}`);
         const sendUserSocket = onlineUsers.get(data.to);
         console.log(`Recipient socket ID: ${sendUserSocket}`);
@@ -48,14 +57,14 @@ io.on("connection", (socket) => {
         try {
             await newMessage.save();
             if (sendUserSocket) {
-                socket.to(sendUserSocket).emit("msg-receive", data.msg);
+                socket.to(sendUserSocket).emit('msg-receive', data.msg);
             }
         } catch (err) {
             console.error('Error saving message:', err);
         }
     });
 
-    socket.on("disconnect", () => {
+    socket.on('disconnect', () => {
         onlineUsers.forEach((value, key) => {
             if (value === socket.id) {
                 onlineUsers.delete(key);
@@ -70,7 +79,7 @@ mongoose.connect(process.env.Mongo_DB_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 }).then(() => {
-    console.log("DB Connection Successful");
+    console.log('DB Connection Successful');
 }).catch((err) => {
     console.log(err.message);
 });

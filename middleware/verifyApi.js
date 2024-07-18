@@ -14,7 +14,7 @@ const authenticateToken = (req, res, next) => {
         return res.status(403).json({ message: 'Invalid token format' });
     }
 
-    const token = tokenParts[1]; // Extract the token from the header
+    const token = tokenParts[1]; 
 
     jwt.verify(token, secretKey, (err, decoded) => {
         if (err) {
