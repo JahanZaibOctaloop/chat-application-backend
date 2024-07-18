@@ -24,7 +24,7 @@ app.use(cors(corsOptions));
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: ['http://localhost:3000', 'https://chat-application-azure-three.vercel.app'], // Replace with your frontend URLs
+        origin: 'https://chat-application-azure-three.vercel.app/',
         methods: ['GET', 'POST'],
         allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true,
