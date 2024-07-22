@@ -8,32 +8,23 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const Message = require('./model/message');
+const Message = require('./model/message'); // Make sure you have this model
 const route = require('./route/router');
 
-const corsOptions = {
-    origin: '*',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-    optionsSuccessStatus: 204,
-};
 
-app.use(cors(corsOptions));  
-
+app.use('/', route);
 
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: 'https://chat-application-azure-three.vercel.app/',
+        origin: ['http://localhost:3000', 'https://chat-application-azure-three.vercel.app'],
         methods: ['GET', 'POST'],
         allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true,
     },
 });
-
+app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use('/', route);
 
 global.onlineUsers = new Map();
 
@@ -60,6 +51,7 @@ io.on('connection', (socket) => {
             from: data.from,
             to: data.to,
             content: data.msg,
+            type: 'text',
         });
 
         try {
@@ -69,6 +61,29 @@ io.on('connection', (socket) => {
             }
         } catch (err) {
             console.error('Error saving message:', err);
+        }
+    });
+
+    socket.on('send-media', async (data) => {
+        const { recipientId, fileBuffer, from, type } = data;
+        const sendUserSocket = onlineUsers.get(recipientId);
+
+        const base64String = Buffer.from(fileBuffer).toString('base64');
+
+        const newMessage = new Message({
+            from,
+            to: recipientId,
+            content: base64String,
+            type: type, // 'image' or 'video'
+        });
+
+        try {
+            await newMessage.save();
+            if (sendUserSocket) {
+                socket.to(sendUserSocket).emit('receive-media', { fileBuffer: base64String, type });
+            }
+        } catch (err) {
+            console.error('Error saving media message:', err);
         }
     });
 
@@ -96,4 +111,3 @@ const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
-

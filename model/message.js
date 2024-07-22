@@ -20,6 +20,9 @@ const messageSchema = new mongoose.Schema({
         enum: ['text', 'image', 'video'],
         default: 'text'
     },
+    base64String: {
+        type: String
+    },
     timestamp: {
         type: Date,
         default: Date.now
@@ -29,4 +32,3 @@ const messageSchema = new mongoose.Schema({
 const Message = mongoose.model('Message', messageSchema);
 
 module.exports = Message;
-
