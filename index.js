@@ -8,10 +8,17 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const Message = require('./model/message'); // Make sure you have this model
+const Message = require('./model/message'); 
 const route = require('./route/router');
 
-
+const corsOptions = {
+    origin: ['http://localhost:3000', 'https://chat-application-azure-three.vercel.app'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 204,
+};
+app.use(cors(corsOptions));
+app.use(express.json());
 app.use('/', route);
 
 const server = http.createServer(app);
@@ -23,8 +30,6 @@ const io = new Server(server, {
         credentials: true,
     },
 });
-app.use(cors());
-app.use(express.json());
 
 global.onlineUsers = new Map();
 
@@ -57,7 +62,7 @@ io.on('connection', (socket) => {
         try {
             await newMessage.save();
             if (sendUserSocket) {
-                socket.to(sendUserSocket).emit('msg-receive', data.msg);
+                socket.to(sendUserSocket).emit('msg-receive', { from: data.from, content: data.msg, type: 'text' });
             }
         } catch (err) {
             console.error('Error saving message:', err);
@@ -80,7 +85,7 @@ io.on('connection', (socket) => {
         try {
             await newMessage.save();
             if (sendUserSocket) {
-                socket.to(sendUserSocket).emit('receive-media', { fileBuffer: base64String, type });
+                socket.to(sendUserSocket).emit('receive-media', { from, fileBuffer: base64String, type });
             }
         } catch (err) {
             console.error('Error saving media message:', err);

@@ -70,17 +70,18 @@ const fetch_user = async (req , res) => {
 
 const fetch_messages = async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const { userId, chatId } = req.params;
     const messages = await Message.find({
-      $or: [
-        { from: userId },
-        { to: userId }
-      ]
-    }).sort({ timestamp: 1 });
-    res.json({ messages });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+        $or: [
+            { from: userId, to: chatId },
+            { from: chatId, to: userId }
+        ]
+    }).sort({ createdAt: 1 });
+    
+    res.status(200).json({ messages });
+} catch (err) {
+    res.status(500).json({ message: err.message });
+}
 };
 
 module.exports = {

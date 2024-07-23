@@ -14,14 +14,15 @@ const authenticateToken = (req, res, next) => {
         return res.status(403).json({ message: 'Invalid token format' });
     }
 
-    const token = tokenParts[1]; 
+    const token = tokenParts[1];
 
     jwt.verify(token, secretKey, (err, decoded) => {
         if (err) {
-            console.log('Token Verification Error:', err);
+            console.error('Token Verification Error:', err);
             return res.status(500).json({ message: 'Failed to authenticate token' });
         }
-        req.userId = decoded._id;
+
+        req.userId = decoded.id;
         req.user = decoded.name;
         next();
     });
