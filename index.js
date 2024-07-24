@@ -12,7 +12,7 @@ const Message = require('./model/message');
 const route = require('./route/router');
 
 const corsOptions = {
-    origin: 'https://chat-application-azure-three.vercel.app',
+    origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204,
@@ -24,7 +24,7 @@ app.use('/', route);
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: 'https://chat-application-azure-three.vercel.app',
+        origin: 'https://04ac-119-155-15-242.ngrok-free.app',
         methods: ['GET', 'POST'],
         allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true,
