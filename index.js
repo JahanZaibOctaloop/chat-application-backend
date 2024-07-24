@@ -14,32 +14,28 @@ const Message = require('./model/message');
 const route = require('./route/router');
 
 const allowedOrigins = [
-    'https://04ac-119-155-15-242.ngrok-free.app',
-    'https://chat-application-azure-three.vercel.app',
+    'https://cfc5-119-155-16-186.ngrok-free.app',
 ];
 
 const corsOptions = {
     origin: function (origin, callback) {
-        if (allowedOrigins.includes(origin) || !origin) {
+        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
         }
     },
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204,
 };
-
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); 
-
 app.use(express.json());
 app.use('/', route);
 
 const io = new Server(server, {
     cors: {
-        origin: allowedOrigins, 
+        origin: allowedOrigins,  
         methods: ['GET', 'POST'],
         allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true,
@@ -52,37 +48,35 @@ io.on('connection', (socket) => {
     console.log(`New connection: ${socket.id}`);
 
     socket.on('error', (err) => {
-        console.error('Socket encountered error:', err.message, 'Closing socket');
+        console.error('Socket encountered error: ', err.message, 'Closing socket');
         socket.close();
     });
 
     socket.on('add-user', (userId) => {
-        if (userId) {
-            global.onlineUsers.set(userId, socket.id);
-            console.log(`User added: ${userId} with socket ID: ${socket.id}`);
-            console.log('Current online users:', Array.from(global.onlineUsers.entries()));
-        }
+        global.onlineUsers.set(userId, socket.id);
+        console.log(`User added: ${userId} with socket ID: ${socket.id}`);
+        console.log('Current online users:', Array.from(global.onlineUsers.entries()));
     });
 
     socket.on('send-msg', async (data) => {
-        const { from, to, msg } = data;
-        console.log(`Message from ${from} to ${to}: ${msg}`);
-        const sendUserSocket = global.onlineUsers.get(to);
+        console.log(`Message from ${data.from} to ${data.to}: ${data.msg}`);
+        const sendUserSocket = global.onlineUsers.get(data.to);
+        console.log(`Recipient socket ID: ${sendUserSocket}`);
 
         const newMessage = new Message({
-            from,
-            to,
-            content: msg,
+            from: data.from,
+            to: data.to,
+            content: data.msg,
             type: 'text',
         });
 
         try {
             await newMessage.save();
             if (sendUserSocket) {
-                io.to(sendUserSocket).emit('msg-receive', { from, content: msg, type: 'text' });
+                socket.to(sendUserSocket).emit('msg-receive', { from: data.from, content: data.msg, type: 'text' });
             }
         } catch (err) {
-            console.error('Error saving message:', err.message);
+            console.error('Error saving message:', err);
         }
     });
 
@@ -96,16 +90,16 @@ io.on('connection', (socket) => {
             from,
             to: recipientId,
             content: base64String,
-            type,
+            type: type, 
         });
 
         try {
             await newMessage.save();
             if (sendUserSocket) {
-                io.to(sendUserSocket).emit('receive-media', { from, fileBuffer: base64String, type });
+                socket.to(sendUserSocket).emit('receive-media', { from, fileBuffer: base64String, type });
             }
         } catch (err) {
-            console.error('Error saving media message:', err.message);
+            console.error('Error saving media message:', err);
         }
     });
 
@@ -126,7 +120,7 @@ mongoose.connect(process.env.Mongo_DB_URL, {
 }).then(() => {
     console.log('DB Connection Successful');
 }).catch((err) => {
-    console.error('DB Connection Error:', err.message);
+    console.log('DB Connection Error:', err.message);
 });
 
 const PORT = process.env.PORT || 4000;
