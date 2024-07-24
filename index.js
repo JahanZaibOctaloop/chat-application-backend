@@ -10,16 +10,14 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
-// Import your models and routes
 const Message = require('./model/message');
 const route = require('./route/router');
 
 const allowedOrigins = [
-    ' https://81b3-119-155-16-186.ngrok-free.app',
+    'https://04ac-119-155-15-242.ngrok-free.app',
     'https://chat-application-azure-three.vercel.app',
 ];
 
-// CORS configuration
 const corsOptions = {
     origin: function (origin, callback) {
         if (allowedOrigins.includes(origin) || !origin) {
@@ -34,27 +32,17 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Handle preflight requests
+app.options('*', cors(corsOptions)); 
 
 app.use(express.json());
 app.use('/', route);
 
-// Socket.IO configuration
 const io = new Server(server, {
     cors: {
-        origin: allowedOrigins,
+        origin: allowedOrigins, 
         methods: ['GET', 'POST'],
         allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true,
-    },
-    handlePreflightRequest: (req, res) => {
-        res.writeHead(200, {
-            'Access-Control-Allow-Origin': req.headers.origin,
-            'Access-Control-Allow-Methods': 'GET,POST',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-            'Access-Control-Allow-Credentials': true,
-        });
-        res.end();
     },
 });
 
