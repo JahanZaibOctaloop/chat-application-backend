@@ -6,8 +6,10 @@
     "node": "20.x"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:lambda": "netlify-lambda build netlify-functions"
   },
+
+
   "author": "",
   "license": "ISC",
   "description": "",
@@ -19,7 +21,10 @@
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.5.0",
+    "netlify-cli": "^17.33.4",
+    "netlify-lambda": "^2.0.16",
     "nodemon": "^3.1.4",
+    "serverless-http": "^3.2.0",
     "socket.io": "^4.7.5"
   }
 }
