@@ -15,10 +15,13 @@ const route = require('./route/router');
 
 
 app.use(cors({
-    origin: 'https://chat-application-azure-three.vercel.app', 
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], 
-    allowedHeaders: ['Content-Type', 'Authorization'], 
-  }));
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'], // Add any other headers you need
+    credentials: true,
+}));
+app.options('*', cors()); 
+
 app.use(express.json());
 app.use('/', route);
 
@@ -26,7 +29,7 @@ const io = new Server(server, {
     cors: {
         origin: 'https://chat-application-azure-three.vercel.app',
         methods: ['GET', 'POST'],
-        allowedHeaders: ['Content-Type', 'application/json'],
+        allowedHeaders: ['Content-Type', 'Authorization'], 
         credentials: true,
     },
 });
