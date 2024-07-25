@@ -13,29 +13,20 @@ const server = http.createServer(app);
 const Message = require('./model/message');
 const route = require('./route/router');
 
-const allowedOrigins = 'https://chat-application-azure-three.vercel.app';
 
-const corsOptions = {
-    origin: function (origin, callback) {
-        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-    optionsSuccessStatus: 204,
-};
-app.use(cors(corsOptions));
+app.use(cors({
+    origin: 'https://chat-application-azure-three.vercel.app', 
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+    allowedHeaders: ['Content-Type', 'Authorization'], 
+  }));
 app.use(express.json());
 app.use('/', route);
 
 const io = new Server(server, {
     cors: {
-        origin: allowedOrigins,  
+        origin: 'https://chat-application-azure-three.vercel.app',
         methods: ['GET', 'POST'],
-        allowedHeaders: ['Content-Type', 'Authorization'],
+        allowedHeaders: ['Content-Type', 'application/json'],
         credentials: true,
     },
 });
