@@ -14,7 +14,7 @@ const Message = require('./model/message');
 const route = require('./route/router');
 
 const allowedOrigins = [
-    'https://cfc5-119-155-16-186.ngrok-free.app',
+    'https://chat-application-azure-three.vercel.app',
 ];
 
 const corsOptions = {
